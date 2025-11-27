@@ -5,7 +5,7 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 
 // 從後端載入資料
-d3.json("/get_van_gogh_data")
+d3.json("/get_dog_data")
   .then((data) => {
     // 計算 x 和 y 的範圍
     const xExtent = d3.extent(data, (d) => d.x);
@@ -47,27 +47,27 @@ d3.json("/get_van_gogh_data")
     imageGroup
       .append("rect")
       .attr("x", (d) => {
-        d.x0 = xScale(d.x) - 15;
+        d.x0 = xScale(d.x) - 30;
         return d.x0;
       })
       .attr("y", (d) => {
-        d.y0 = yScale(d.y) - 15;
+        d.y0 = yScale(d.y) - 30;
         return d.y0;
       })
       .attr("width", (d) => {
-        d.w0 = 30;
+        d.w0 = 60;
         return d.w0;
       })
       .attr("height", (d) => {
-        d.h0 = 30;
+        d.h0 = 60;
         return d.h0;
       })
       .attr("stroke", (d) => colorScale(d.class_name))
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 3)
       .attr("fill", (d) => colorScale(d.class_name))
       .attr("fill-opacity", 0.6)
-      .attr("rx", 2)
-      .attr("ry", 2);
+      .attr("rx", 4)
+      .attr("ry", 4);
 
     // 疊上圖片
     imageGroup
@@ -114,20 +114,26 @@ d3.json("/get_van_gogh_data")
         const popup = d3.select("#popup");
         const color = colorScale(d.class_name);
 
-        popup.style("background-color", color);
+        // Get click position
+        const clickX = event.clientX;
+        const clickY = event.clientY;
+
+        // Position popup at top-right of click
         popup.style("display", "block");
+        popup.style("left", (clickX + 20) + "px");
+        popup.style("top", (clickY - 20) + "px");
+        popup.style("transform", "none");
+
         d3.select("#popup-image").attr("src", d.image_url);
 
         const fileName = d.image_url
-          .split("van-gogh-paintings/")[1]
+          .split("dogs/")[1]
           .split("/")
           .pop()
           .replace(".jpg", "");
 
         d3.select("#popup-info").html(`
-          <li>Names: ${fileName}</li>
-          <li>Class: ${d.class_name}</li>
-          <li>Labels: ${d.labels}</li>
+          <li>Breed: ${d.class_name}</li>
         `);
         event.stopPropagation();
       });

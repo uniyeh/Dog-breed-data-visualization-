@@ -4,14 +4,20 @@ import os
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 
-@app.route('/get_van_gogh_data', methods=['GET'])
-def get_van_gogh_data():
-    csv_path = os.path.join(app.static_folder, "van_gogh_features.csv")
+@app.route('/get_dog_data', methods=['GET'])
+def get_dog_data():
+    csv_path = os.path.join(app.static_folder, "dog_output_file.csv")
     df = pd.read_csv(csv_path)
-    
+
+    # Create class_name from labels
+    df['class_name'] = df['labels']
+
+    # Sample fewer images for better performance (optional)
+    df = df.sample(n=min(500, len(df)), random_state=42)
+
     # 將圖片路徑轉換為前端可訪問的 URL
-    df['image_url'] = df['image_path'].apply(lambda p: f"/static/van-gogh-paintings/{p.split('van-gogh-paintings/')[-1]}")
-    
+    df['image_url'] = df['filepaths'].apply(lambda p: f"/static/dogs/{p}")
+
     # 選擇前端需要的欄位
     data = df[['image_url', 'x', 'y', 'class_name', 'labels']].to_dict(orient='records')
     return jsonify(data)

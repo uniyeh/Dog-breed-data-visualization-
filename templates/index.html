@@ -4,52 +4,403 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Van Gogh Paintings Explorer</title>
+    <title>Dog Breeds Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* 可選：添加基本樣式 */
-        body {
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
+        body {
+            margin: 0;
+            font-family: 'Work Sans', sans-serif;
+            background: #F5F5F5;
+            overflow: hidden;
+        }
+
+        /* Bauhaus geometric background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(45deg, transparent 45%, #EBFFAD 45%, #EBFFAD 55%, transparent 55%),
+                linear-gradient(-45deg, transparent 45%, #FFE5E5 45%, #FFE5E5 55%, transparent 55%);
+            background-size: 100px 100px;
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        /* Header - Bauhaus style */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #000000;
+            padding: 0;
+            box-shadow: 0 4px 0 #EBFFAD;
+            z-index: 100;
+            display: flex;
+            align-items: stretch;
+            height: 80px;
+        }
+
+        .header-accent {
+            width: 80px;
+            background: #EBFFAD;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .header h1 {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: #EBFFAD;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-source {
+            font-size: 11px;
+            color: #EBFFAD;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .header-source a {
+            color: #EBFFAD;
+            text-decoration: none;
+            border-bottom: 1px solid #EBFFAD;
+            transition: opacity 0.2s;
+        }
+
+        .header-source a:hover {
+            opacity: 0.7;
+        }
+
+        .header-info {
+            font-size: 14px;
+            color: #FFFFFF;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Main SVG */
         #main-svg {
             width: 100%;
             height: 100vh;
+            cursor: crosshair;
+            background: #FFFFFF;
         }
 
+        /* Minimap - Bauhaus geometric */
         #minimap {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 240px;
-            height: 180px;
-            border: 1px solid #ccc;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 200px;
+            height: 200px;
+            background: #000000;
+            border: 6px solid #EBFFAD;
+            z-index: 50;
+            box-shadow: -10px 10px 0 #FF6B6B;
         }
 
-        #legend {
+        /* Popup - Bauhaus style */
+        #popup {
+            display: none;
+            position: fixed;
+            background: #FFFFFF;
+            border: 6px solid #000000;
+            box-shadow: 15px 15px 0 #EBFFAD, -5px -5px 0 #FF6B6B;
+            z-index: 1000;
+            min-width: 400px;
+            max-width: 500px;
+            overflow: hidden;
+        }
+
+        .popup-header {
+            padding: 30px;
+            background: #000000;
+            color: #EBFFAD;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .popup-header::before {
+            content: '';
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: auto;
-            height: auto;
-            padding: 10px
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: #FF6B6B;
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .popup-header h2 {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .popup-content {
+            padding: 30px;
+            background: #F5F5F5;
+        }
+
+        #popup-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            margin-bottom: 25px;
+            border: 4px solid #000000;
+            box-shadow: 8px 8px 0 #EBFFAD;
+        }
+
+        #popup-info {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px 0;
+        }
+
+        #popup-info li {
+            padding: 15px 20px;
+            background: #FFFFFF;
+            border-left: 6px solid #000000;
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #000000;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        #popup-info li::before {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #EBFFAD;
+            border-radius: 50%;
+        }
+
+        #close-popup {
+            width: 100%;
+            padding: 18px;
+            background: #000000;
+            color: #EBFFAD;
+            border: none;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Archivo Black', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #close-popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #EBFFAD;
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        #close-popup:hover::before {
+            left: 0;
+        }
+
+        #close-popup:hover {
+            color: #000000;
+        }
+
+        #close-popup:active {
+            transform: scale(0.98);
+        }
+
+        /* Loading indicator - Bauhaus */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1001;
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .spinner::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 8px solid #000000;
+            border-radius: 50%;
+        }
+
+        .spinner::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            background: #EBFFAD;
+            animation: bauhaus-spin 2s ease-in-out infinite;
+        }
+
+        @keyframes bauhaus-spin {
+            0%, 100% {
+                border-radius: 0%;
+                transform: rotate(0deg);
+            }
+            25% {
+                border-radius: 50%;
+                transform: rotate(90deg);
+            }
+            50% {
+                border-radius: 0%;
+                transform: rotate(180deg);
+            }
+            75% {
+                border-radius: 50%;
+                transform: rotate(270deg);
+            }
+        }
+
+        .loading-text {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* Scrollbar - Bauhaus */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F5F5F5;
+            border-left: 2px solid #000000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #000000;
+            border: 2px solid #EBFFAD;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #EBFFAD;
+            border-color: #000000;
         }
     </style>
 </head>
 
 <body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-accent">🐕</div>
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Dog Breeds</h1>
+                <div class="header-source">
+                    資料來源與說明：本視覺化使用 <a href="https://www.kaggle.com/datasets/gpiosenka/70-dog-breedsimage-data-set" target="_blank">Kaggle 的 70 種犬種圖像資料集</a>，包含超過 10,000 張狗狗圖片，涵蓋訓練、驗證和測試集。透過深度學習特徵提取與降維技術，將高維圖像特徵投影至二維空間，展現不同犬種之間的視覺相似性與差異。
+                </div>
+            </div>
+            <div class="header-info">Explorer</div>
+        </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading</div>
+    </div>
+
+    <!-- Main visualization -->
     <svg id="main-svg"></svg>
+
+    <!-- Minimap -->
     <svg id="minimap"></svg>
+
+    <!-- Legend (drawn by D3) -->
     <svg id="legend"></svg>
-    <!-- 彈出視窗 -->
-    <div id="popup"
-        style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border:1px solid #ccc; box-shadow:0 0 10px rgba(0,0,0,0.5); z-index:1000;">
-        <img id="popup-image" src="" style="max-width:300px; max-height:300px;" />
-        <p id="popup-info"></p>
-        <button id="close-popup">關閉</button>
+
+    <!-- Popup -->
+    <div id="popup">
+        <div class="popup-header">
+            <h2>Details</h2>
+        </div>
+        <div class="popup-content">
+            <img id="popup-image" src="" alt="Dog" />
+            <ul id="popup-info"></ul>
+            <button id="close-popup">Close</button>
+        </div>
     </div>
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="/static/main.js"></script>
+    <script>
+        // Hide loading indicator when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 500);
+        });
+    </script>
 </body>
 
 </html>
